@@ -93,7 +93,6 @@ A: Yes, you can update your profile information including your username from the
 
 ### Ways to Contribute
 
-- 🐛 **Bug Reports**: Found a bug? [Open an issue](https://github.com/avictormorais/posterfy/issues)
 - 💡 **Feature Requests**: Have an idea? We'd love to hear it!
 - 🌐 **Translations**: Help make Posterfy available in more languages
 - 📖 **Documentation**: Improve our docs and examples
@@ -107,12 +106,6 @@ A: Yes, you can update your profile information including your username from the
 - Update documentation as needed
 
 ## 🎉 Acknowledgments
-
-Special thanks to all contributors who have helped make Posterfy better:
-
-- [**debug420**](https://github.com/debug420) - For valuable improvements and feature contributions
-- All beta testers and community members providing feedbacks
-</details>
 
 <details>
 <summary><strong>Can I create posters for custom/local albums?</strong></summary>
@@ -173,7 +166,7 @@ No, this project is for educational and non-commercial use only. All album artwo
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/avictormorais/posterfy.git
+   git clone https://github.com/Nabeel-Farooq/posterfy.git
    cd posterfy
    ```
 
@@ -290,7 +283,6 @@ We welcome contributions to Posterfy! This is a full-stack project with opportun
 
 ### Ways to Contribute
 
-- 🐛 **Bug Reports**: Found a bug? [Open an issue](https://github.com/avictormorais/posterfy/issues)
 - 💡 **Feature Requests**: Have an idea? We'd love to hear it!
 - 🌐 **Translations**: Help make Posterfy available in more languages
 - 📖 **Documentation**: Improve our docs and examples
@@ -314,9 +306,6 @@ We welcome contributions to Posterfy! This is a full-stack project with opportun
 5. Submit a pull request
 
 Please ensure that your code passes all tests and adheres to the project's style guide.
-
-## 🎉 Community Contributions
-A huge thank you to [debug420](https://github.com/debug420) for contributing improvements to Posterfy! This fork introduced some great new features, your contributions help make Posterfy even better. 🚀
 
 ## 📄 License
 
@@ -368,7 +357,3 @@ For complete license terms, see the [LICENSE](./LICENSE) file or visit [creative
 - **Spotify OAuth 2.0** - Authentication provider
 
 
-<div align="center">
-  <p>Made with ❤️ by <a href="https://github.com/avictormorais">Victor Morais</a></p>
-  <p>🚀 Full-stack music poster creation platform</p>
-</div>
