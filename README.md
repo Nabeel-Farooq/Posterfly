@@ -320,8 +320,6 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial-
 | ❌ **Modify** | Cannot remix, transform, or build upon the material |
 | ⚠️ **Attribution** | Must give appropriate credit and link to license |
 
-For complete license terms, see the [LICENSE](./LICENSE) file or visit [creativecommons.org](https://creativecommons.org/licenses/by-nc-nd/4.0/).
-
 ## ⚠️ Disclaimer
 
 - **🎓 Educational Purpose**: This project is created for educational and non-commercial purposes only
