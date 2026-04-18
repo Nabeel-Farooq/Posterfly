@@ -8,10 +8,7 @@
   **Create stunning posters of your favorite albums powered by Spotify's API**
   
   **Full-stack web application with user authentication, profile management, and poster creation**
-  
-  [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-  [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://posterfy.space/)
-  [![GitHub stars](https://img.shields.io/github/stars/avictormorais/posterfy)](https://github.com/avictormorais/posterfy/stargazers)
+
 </div>
 
 ## 🔭 **Overview**
