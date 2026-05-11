@@ -1,90 +1,169 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
 
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set. Refusing to start.')
+const {
+    JWT_SECRET,
+    JWT_EXPIRES_IN = '30d',
+} = process.env
+
+if (!JWT_SECRET) {
+    throw new Error(
+        'JWT_SECRET environment variable is not set. Refusing to start.'
+    )
 }
 
-const JWT_SECRET = process.env.JWT_SECRET
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d'
+const TOKEN_FIELDS = [
+    '_id',
+    'username',
+    'email',
+    'permissions',
+    'status',
+    'tokenVersion',
+].join(' ')
 
 export const generateToken = (user) => {
-  return jwt.sign(
-    {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      tokenVersion: user.tokenVersion || 0
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
-  )
+    return jwt.sign(
+        {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            tokenVersion: user.tokenVersion || 0,
+        },
+        JWT_SECRET,
+        {
+            expiresIn: JWT_EXPIRES_IN,
+        }
+    )
 }
 
 export const verifyToken = (token) => {
-  try {
-    return jwt.verify(token, JWT_SECRET)
-  } catch (error) {
-    return null
-  }
+    try {
+        return jwt.verify(token, JWT_SECRET)
+    } catch {
+        return null
+    }
 }
 
-export const optionalAuthenticateToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(' ')[1]
+const extractTokenFromHeader = (req) => {
+    const authHeader = req.headers.authorization
 
-  if (!token) return next()
+    if (!authHeader) {
+        return null
+    }
 
-  const decoded = verifyToken(token)
-  if (!decoded) return next()
+    const parts = authHeader.split(' ')
 
-  try {
-    const user = await User.findById(decoded.id).select('_id username email permissions status tokenVersion').lean()
-    if (user && user.status === 'active' && (decoded.tokenVersion ?? 0) === (user.tokenVersion ?? 0)) {
-      req.user = {
+    return parts.length === 2 ? parts[1] : null
+}
+
+const loadUserFromToken = async (decoded) => {
+    return User.findById(decoded.id)
+        .select(TOKEN_FIELDS)
+        .lean()
+}
+
+const isTokenValidForUser = (decoded, user) => {
+    return (
+        user &&
+        user.status === 'active' &&
+        (decoded.tokenVersion ?? 0) ===
+            (user.tokenVersion ?? 0)
+    )
+}
+
+const attachUserToRequest = (req, user) => {
+    req.user = {
         id: user._id.toString(),
         username: user.username,
         email: user.email,
         permissions: user.permissions,
-        status: user.status
-      }
+        status: user.status,
     }
-  } catch (_) {
-    // silent — optional auth never blocks the request
-  }
-  next()
 }
 
-export const authenticateToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(' ')[1]
+export const optionalAuthenticateToken = async (
+    req,
+    res,
+    next
+) => {
+    const token = extractTokenFromHeader(req)
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' })
-  }
-
-  const decoded = verifyToken(token)
-  if (!decoded) {
-    return res.status(403).json({ error: 'Invalid or expired token' })
-  }
-
-  try {
-    const user = await User.findById(decoded.id).select('_id username email permissions status tokenVersion').lean()
-    if (!user) return res.status(403).json({ error: 'User not found' })
-    if (user.status === 'suspended') return res.status(403).json({ error: 'Account suspended', code: 'SUSPENDED' })
-    if ((decoded.tokenVersion ?? 0) !== (user.tokenVersion ?? 0)) {
-      return res.status(403).json({ error: 'Token revoked', code: 'TOKEN_REVOKED' })
+    if (!token) {
+        return next()
     }
 
-    req.user = {
-      id: user._id.toString(),
-      username: user.username,
-      email: user.email,
-      permissions: user.permissions,
-      status: user.status
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+        return next()
     }
+
+    try {
+        const user = await loadUserFromToken(decoded)
+
+        if (isTokenValidForUser(decoded, user)) {
+            attachUserToRequest(req, user)
+        }
+    } catch {
+        // silent — optional auth never blocks the request
+    }
+
     next()
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' })
-  }
+}
+
+export const authenticateToken = async (
+    req,
+    res,
+    next
+) => {
+    const token = extractTokenFromHeader(req)
+
+    if (!token) {
+        return res.status(401).json({
+            error: 'Access token required',
+        })
+    }
+
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+        return res.status(403).json({
+            error: 'Invalid or expired token',
+        })
+    }
+
+    try {
+        const user = await loadUserFromToken(decoded)
+
+        if (!user) {
+            return res.status(403).json({
+                error: 'User not found',
+            })
+        }
+
+        if (user.status === 'suspended') {
+            return res.status(403).json({
+                error: 'Account suspended',
+                code: 'SUSPENDED',
+            })
+        }
+
+        if (
+            (decoded.tokenVersion ?? 0) !==
+            (user.tokenVersion ?? 0)
+        ) {
+            return res.status(403).json({
+                error: 'Token revoked',
+                code: 'TOKEN_REVOKED',
+            })
+        }
+
+        attachUserToRequest(req, user)
+
+        next()
+    } catch {
+        return res.status(500).json({
+            error: 'Internal server error',
+        })
+    }
 }
