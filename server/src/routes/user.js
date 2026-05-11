@@ -1,6 +1,8 @@
 import express from 'express'
+
 import UserController from '../controllers/userController.js'
 import PosterController from '../controllers/posterController.js'
+
 import { authenticateToken } from '../utils/jwt.js'
 
 const router = express.Router()
@@ -19,7 +21,10 @@ router.use(authenticateToken)
  *       200:
  *         description: User profile
  */
-router.get('/profile', UserController.getProfile)
+router.get(
+    '/profile',
+    UserController.getProfile
+)
 
 /**
  * @openapi
@@ -33,10 +38,20 @@ router.get('/profile', UserController.getProfile)
  *       200:
  *         description: Profile updated
  */
-router.put('/profile', UserController.updateProfile)
+router.put(
+    '/profile',
+    UserController.updateProfile
+)
 
-router.put('/pinned', UserController.setPinnedPoster)
-router.delete('/pinned', UserController.removePinnedPoster)
+router.put(
+    '/pinned',
+    UserController.setPinnedPoster
+)
+
+router.delete(
+    '/pinned',
+    UserController.removePinnedPoster
+)
 
 /**
  * @openapi
@@ -50,7 +65,10 @@ router.delete('/pinned', UserController.removePinnedPoster)
  *       200:
  *         description: Username changed
  */
-router.put('/change-username', UserController.changeUsername)
+router.put(
+    '/change-username',
+    UserController.changeUsername
+)
 
 /**
  * @openapi
@@ -73,7 +91,10 @@ router.put('/change-username', UserController.changeUsername)
  *       200:
  *         description: Paginated poster list
  */
-router.get('/posters', PosterController.getUserPosters)
+router.get(
+    '/posters',
+    PosterController.getUserPosters
+)
 
 /**
  * @openapi
@@ -96,8 +117,14 @@ router.get('/posters', PosterController.getUserPosters)
  *       200:
  *         description: Paginated favorites list
  */
-router.get('/favorites', PosterController.getUserFavorites)
+router.get(
+    '/favorites',
+    PosterController.getUserFavorites
+)
 
-router.get('/stats', UserController.getStats)
+router.get(
+    '/stats',
+    UserController.getStats
+)
 
 export default router
