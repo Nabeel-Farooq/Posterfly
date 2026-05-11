@@ -1,6 +1,8 @@
 import express from 'express'
-import { param, body, query } from 'express-validator'
+import { param, body } from 'express-validator'
+
 import AdminController from '../controllers/adminController.js'
+
 import { authenticateToken } from '../utils/jwt.js'
 import { requireAdmin } from '../middlewares/auth.js'
 import { adminLimiter } from '../middlewares/rateLimiter.js'
@@ -9,6 +11,13 @@ import { auditLog } from '../middlewares/auditLog.js'
 const router = express.Router()
 
 router.use(authenticateToken, requireAdmin, adminLimiter)
+
+const mongoIdValidation = [param('id').isMongoId()]
+
+const visibilityValidation = [
+    param('id').isMongoId(),
+    body('visibility').isIn(['public', 'private']),
+]
 
 /**
  * @openapi
@@ -95,7 +104,11 @@ router.get('/logs', AdminController.listLogs)
  */
 router.get('/users', AdminController.listUsers)
 
-router.put('/users/bulk', auditLog('bulk_user_action', 'user'), AdminController.bulkUsersAction)
+router.put(
+    '/users/bulk',
+    auditLog('bulk_user_action', 'user'),
+    AdminController.bulkUsersAction
+)
 
 /**
  * @openapi
@@ -116,7 +129,11 @@ router.put('/users/bulk', auditLog('bulk_user_action', 'user'), AdminController.
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get('/users/:id', [param('id').isMongoId()], AdminController.getUser)
+router.get(
+    '/users/:id',
+    mongoIdValidation,
+    AdminController.getUser
+)
 
 /**
  * @openapi
@@ -148,7 +165,12 @@ router.get('/users/:id', [param('id').isMongoId()], AdminController.getUser)
  *       409:
  *         description: Username taken
  */
-router.put('/users/:id/edit', [param('id').isMongoId()], auditLog('edit_user', 'user'), AdminController.editUser)
+router.put(
+    '/users/:id/edit',
+    mongoIdValidation,
+    auditLog('edit_user', 'user'),
+    AdminController.editUser
+)
 
 /**
  * @openapi
@@ -167,7 +189,12 @@ router.put('/users/:id/edit', [param('id').isMongoId()], auditLog('edit_user', '
  *       200:
  *         description: User promoted
  */
-router.put('/users/:id/promote', [param('id').isMongoId()], auditLog('promote_admin', 'user'), AdminController.promoteUser)
+router.put(
+    '/users/:id/promote',
+    mongoIdValidation,
+    auditLog('promote_admin', 'user'),
+    AdminController.promoteUser
+)
 
 /**
  * @openapi
@@ -186,7 +213,12 @@ router.put('/users/:id/promote', [param('id').isMongoId()], auditLog('promote_ad
  *       200:
  *         description: Admin removed
  */
-router.put('/users/:id/demote', [param('id').isMongoId()], auditLog('demote_admin', 'user'), AdminController.demoteUser)
+router.put(
+    '/users/:id/demote',
+    mongoIdValidation,
+    auditLog('demote_admin', 'user'),
+    AdminController.demoteUser
+)
 
 /**
  * @openapi
@@ -205,7 +237,12 @@ router.put('/users/:id/demote', [param('id').isMongoId()], auditLog('demote_admi
  *       200:
  *         description: User suspended
  */
-router.put('/users/:id/ban', [param('id').isMongoId()], auditLog('ban_user', 'user'), AdminController.banUser)
+router.put(
+    '/users/:id/ban',
+    mongoIdValidation,
+    auditLog('ban_user', 'user'),
+    AdminController.banUser
+)
 
 /**
  * @openapi
@@ -224,7 +261,12 @@ router.put('/users/:id/ban', [param('id').isMongoId()], auditLog('ban_user', 'us
  *       200:
  *         description: User reactivated
  */
-router.put('/users/:id/unban', [param('id').isMongoId()], auditLog('unban_user', 'user'), AdminController.unbanUser)
+router.put(
+    '/users/:id/unban',
+    mongoIdValidation,
+    auditLog('unban_user', 'user'),
+    AdminController.unbanUser
+)
 
 /**
  * @openapi
@@ -245,7 +287,12 @@ router.put('/users/:id/unban', [param('id').isMongoId()], auditLog('unban_user',
  *       404:
  *         description: User not found or not suspended
  */
-router.delete('/users/:id/purge', [param('id').isMongoId()], auditLog('purge_user', 'user'), AdminController.purgeUser)
+router.delete(
+    '/users/:id/purge',
+    mongoIdValidation,
+    auditLog('purge_user', 'user'),
+    AdminController.purgeUser
+)
 
 /**
  * @openapi
@@ -264,7 +311,12 @@ router.delete('/users/:id/purge', [param('id').isMongoId()], auditLog('purge_use
  *       200:
  *         description: Sessions revoked
  */
-router.post('/users/:id/force-logout', [param('id').isMongoId()], auditLog('force_logout', 'user'), AdminController.forceLogout)
+router.post(
+    '/users/:id/force-logout',
+    mongoIdValidation,
+    auditLog('force_logout', 'user'),
+    AdminController.forceLogout
+)
 
 /**
  * @openapi
@@ -321,7 +373,11 @@ router.get('/posters', AdminController.listPosters)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get('/posters/:id', [param('id').isMongoId()], AdminController.getPoster)
+router.get(
+    '/posters/:id',
+    mongoIdValidation,
+    AdminController.getPoster
+)
 
 /**
  * @openapi
@@ -342,7 +398,12 @@ router.get('/posters/:id', [param('id').isMongoId()], AdminController.getPoster)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.delete('/posters/:id', [param('id').isMongoId()], auditLog('delete_poster', 'poster'), AdminController.deletePoster)
+router.delete(
+    '/posters/:id',
+    mongoIdValidation,
+    auditLog('delete_poster', 'poster'),
+    AdminController.deletePoster
+)
 
 /**
  * @openapi
@@ -361,8 +422,19 @@ router.delete('/posters/:id', [param('id').isMongoId()], auditLog('delete_poster
  *       200:
  *         description: Poster restored
  */
-router.put('/posters/:id/restore', [param('id').isMongoId()], auditLog('restore_poster', 'poster'), AdminController.restorePoster)
-router.delete('/posters/:id/purge', [param('id').isMongoId()], auditLog('purge_poster', 'poster'), AdminController.purgePoster)
+router.put(
+    '/posters/:id/restore',
+    mongoIdValidation,
+    auditLog('restore_poster', 'poster'),
+    AdminController.restorePoster
+)
+
+router.delete(
+    '/posters/:id/purge',
+    mongoIdValidation,
+    auditLog('purge_poster', 'poster'),
+    AdminController.purgePoster
+)
 
 /**
  * @openapi
@@ -389,7 +461,12 @@ router.delete('/posters/:id/purge', [param('id').isMongoId()], auditLog('purge_p
  *       200:
  *         description: Visibility updated
  */
-router.put('/posters/:id/visibility', [param('id').isMongoId(), body('visibility').isIn(['public', 'private'])], auditLog('change_visibility', 'poster'), AdminController.changePosterVisibility)
+router.put(
+    '/posters/:id/visibility',
+    visibilityValidation,
+    auditLog('change_visibility', 'poster'),
+    AdminController.changePosterVisibility
+)
 
 /**
  * @openapi
@@ -417,6 +494,11 @@ router.put('/posters/:id/visibility', [param('id').isMongoId(), body('visibility
  *       200:
  *         description: Poster updated
  */
-router.put('/posters/:id/edit', [param('id').isMongoId()], auditLog('edit_poster', 'poster'), AdminController.editPoster)
+router.put(
+    '/posters/:id/edit',
+    mongoIdValidation,
+    auditLog('edit_poster', 'poster'),
+    AdminController.editPoster
+)
 
 export default router
